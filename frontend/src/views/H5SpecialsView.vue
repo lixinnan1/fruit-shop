@@ -22,8 +22,9 @@ const items = ref([])
 function discountText(row) {
   const rate = row.discountRate ?? (row.finalPrice && row.originalPrice ? row.finalPrice / row.originalPrice : null)
   if (!rate) return ''
-  const tenths = Math.round(Number(rate) * 10)
-  return tenths >= 10 ? '' : `${tenths} 折`
+  // 店主改价后折扣不一定是整档（如 ¥12.50 / ¥19.80 = 6.3 折）：保留一位小数，整档时不显示小数
+  const tenths = Number((Number(rate) * 10).toFixed(1))
+  return tenths >= 9.95 ? '' : `${tenths} 折`
 }
 
 function priceText(v) {

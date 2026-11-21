@@ -99,7 +99,17 @@ function freshnessType(v) {
 async function generate(strategy) {
   try {
     const res = await api.generateSuggestions({ bizDate: bizDate.value, strategy })
-    notifyGenerateResult(res, strategy)
+    // 没有新生成时查一下当天这个策略有没有建议：0 条是"全部维持原价"，不是"已生成过"
+    let existingCount
+    if ((res?.generated ?? 0) === 0) {
+      try {
+        const list = await api.suggestions({ bizDate: bizDate.value, strategy })
+        existingCount = Array.isArray(list) ? list.length : undefined
+      } catch (e) {
+        existingCount = undefined
+      }
+    }
+    notifyGenerateResult(res, strategy, existingCount)
   } catch (e) {
     // 错误提示由拦截器统一处理
   }

@@ -63,11 +63,22 @@ async function generate() {
     return
   }
   const res = await api.generateSuggestions({ bizDate: bizDate.value, strategy: strategy.value })
-  // 例如请求 MODEL 但部分批次回退了规则版、或被每日调价上限拦住：如实提示，不当成"生成成功"
-  notifyGenerateResult(res)
   // 产物可能在打开页面之后才重新导出：生成完顺手刷新模型状态提示，和刚生成的建议对得上
   await Promise.all([load(), loadModelStatus()])
+  // 例如请求 MODEL 但部分批次回退了规则版、或被每日调价上限拦住：如实提示，不当成"生成成功"；
+  // 刷新后当天这个策略仍是 0 条，说明策略判定全部维持原价，而不是"已生成过"
+  notifyGenerateResult(res, strategy.value, error.value ? undefined : rows.value.length)
+  nothingToSuggest.value =
+    (res?.generated ?? 0) === 0 && !error.value && rows.value.length === 0 ? `${bizDate.value}|${strategy.value}` : ''
 }
+
+// 生成后仍没有建议的那个"营业日|策略"：空表时说明原因，而不是继续提示"点击生成建议"
+const nothingToSuggest = ref('')
+const emptyText = computed(() =>
+  nothingToSuggest.value === `${bizDate.value}|${strategy.value}`
+    ? `按「${STRATEGY_LABEL[strategy.value]}」算，${bizDate.value} 的在售单品都维持原价，没有需要降价的单品`
+    : '暂无定价建议，点击「生成建议」'
+)
 
 function openDecision(row) {
   current.value = row
@@ -164,7 +175,7 @@ onMounted(() => {
         共 {{ rows.length }} 条，待决策 {{ pendingRows.length }} 条，已采纳 {{ acceptedCount }} 条
       </div>
 
-      <el-empty v-if="!loading && !error && rows.length === 0" description="暂无定价建议，点击「生成建议」" />
+      <el-empty v-if="!loading && !error && rows.length === 0" :description="emptyText" />
 
       <el-table v-if="rows.length" :data="rows" border stripe>
         <el-table-column prop="itemName" label="单品" min-width="110" />
