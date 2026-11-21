@@ -408,4 +408,8 @@ onMounted(() => {
 .kpi-value { font-size: 22px; font-weight: 600; color: #303133; margin: 4px 0; font-variant-numeric: tabular-nums; }
 .kpi-sub { font-size: 12px; color: #606266; }
 .logs { padding: 4px 16px 8px 48px; }
+@media (max-width: 768px) {
+  .preview { grid-template-columns: 1fr; }
+  .logs { padding: 4px 8px 8px; }
+}
 </style>

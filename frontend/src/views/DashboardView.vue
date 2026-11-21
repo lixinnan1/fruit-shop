@@ -286,7 +286,7 @@ onMounted(load)
 .note { font-size: 12px; color: #909399; margin: 12px 0 0; }
 .section { margin-top: 16px; }
 .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
-.trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
+.trends { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 24px; }
 .chart-title { font-size: 13px; font-weight: 600; color: #303133; margin-bottom: 10px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 .refetching { opacity: 0.6; transition: opacity 0.15s; }
