@@ -13,6 +13,12 @@ const http = axios.create({
   timeout: 20000
 })
 
+// 静态演示版（GitHub Pages，npm run build:demo）：没有后端，/api 请求交给浏览器里的演示数据回答（见 src/demo/）。
+// 只有 demo 模式下这个条件为真；正常构建会把这一段连同演示数据一起摇掉，不会打进包里。
+if (import.meta.env.VITE_DEMO === 'true') {
+  http.defaults.adapter = (config) => import('../demo/adapter.js').then((m) => m.default(config))
+}
+
 /** 把后端的错误信息包装成带 code 的 Error，方便调用方按 code 分支处理 */
 function toError(code, message) {
   const err = new Error(message || '请求失败')

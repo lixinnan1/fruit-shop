@@ -9,6 +9,8 @@ const route = useRoute()
 const activeMenu = computed(() => route.path)
 // 顾客端 H5 是独立版式：不带后台侧边栏与顶栏，直接铺满手机屏（演示时按 F12 切手机视口）
 const standalone = computed(() => route.meta?.standalone === true)
+// 静态演示版（npm run build:demo）：数据是录好的示例，操作只改当前页面，刷新即还原
+const isDemo = import.meta.env.VITE_DEMO === 'true'
 </script>
 
 <template>
@@ -26,7 +28,13 @@ const standalone = computed(() => route.meta?.standalone === true)
             <div class="subtitle">建议由系统给出，定价权在店主手里</div>
           </div>
         </div>
-        <el-tag type="success" effect="plain">决策辅助模式 · 不自动改价</el-tag>
+        <div class="header-tags">
+          <el-tooltip v-if="isDemo" placement="bottom"
+                      content="没有连接后端：数据是营业日 2026-06-29 的录制快照，确认、推送、登记等操作只改当前页面，刷新即还原">
+            <el-tag type="warning" effect="dark">演示版 · 示例数据</el-tag>
+          </el-tooltip>
+          <el-tag type="success" effect="plain">决策辅助模式 · 不自动改价</el-tag>
+        </div>
       </el-header>
 
       <el-container>
@@ -73,6 +81,7 @@ body { background: #f5f7fa; font-family: "Microsoft YaHei", system-ui, sans-seri
   background: #fff; border-bottom: 1px solid #e4e7ed; height: 64px;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
+.header-tags { display: flex; align-items: center; gap: 8px; }
 .logo { font-size: 28px; }
 .title { font-size: 17px; font-weight: 600; color: #303133; }
 .subtitle { font-size: 12px; color: #909399; }

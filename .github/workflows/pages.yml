@@ -1,0 +1,53 @@
+# 静态演示版：把前端用 demo 模式构建（自带演示数据、不连后端，见 frontend/src/demo/），发布到 GitHub Pages。
+# 使用前仓库管理员要在 Settings → Pages 里把 Source 选成「GitHub Actions」。
+# 演示数据要更新时，按 scripts/record_demo_fixtures.py 开头的说明重新录制 frontend/src/demo/fixtures.json。
+name: 静态演示版（GitHub Pages）
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 构建演示版
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+      # 与 ci.yml 一致：锁文件指向国内镜像，CI 在海外机房，换回官方源（版本与校验和不变）
+      - run: npm ci --registry=https://registry.npmjs.org/ --replace-registry-host=registry.npmmirror.com
+      - run: npm run build:demo
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    name: 发布
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

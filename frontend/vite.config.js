@@ -15,7 +15,9 @@ const proxy = {
   changeOrigin: true
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  // 静态演示版部署在 GitHub Pages 的子路径（/<仓库名>/）下：资源用相对路径，路由本来就是 hash 模式，不用再改
+  base: mode === 'demo' ? './' : '/',
   plugins: [
     vue(),
     // Element Plus 按需引入（Issue #4）：模板里用到哪个 <el-xxx> / v-loading，就只打包哪个组件和它的样式，
@@ -47,4 +49,4 @@ export default defineConfig({
     outDir: 'dist',
     chunkSizeWarningLimit: 1500
   }
-})
+}))
